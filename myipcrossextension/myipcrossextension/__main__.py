@@ -1,7 +1,18 @@
 import re
 import sys
 import subprocess
+import socket
 from dynatrace_extension import Extension, Status, StatusValue
+
+
+def get_origin_ip(host: str) -> str | None:
+    """Resolve the local source IP used to reach the destination host."""
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+            sock.connect((host, 1))
+            return sock.getsockname()[0]
+    except Exception:
+        return None
 
 
 class ExtensionImpl(Extension):
@@ -126,13 +137,19 @@ class ExtensionImpl(Extension):
             count = endpoint.get("packets") or 4
             timeout_sec = endpoint.get("timeout") or 2
 
-            self.logger.info(f"Pinging target '{host}' (alias: '{alias or 'None'}') with {count} packets...")
+            origin_ip = get_origin_ip(host) or "unknown"
+            self.logger.info(
+                f"Pinging target '{host}' (origin: '{origin_ip}', alias: '{alias or 'None'}') with {count} packets..."
+            )
             
             # Execute the ping
             res = self.run_ping(host, count=count, timeout_sec=timeout_sec)
 
             # Build dimensions for metric reporting
-            dimensions = {"host": host}
+            dimensions = {
+                "origin": origin_ip,
+                "destination": host
+            }
             if alias:
                 dimensions["alias"] = alias
 
