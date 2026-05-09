@@ -6,9 +6,16 @@
 	"pythonRemote": {
 		"endpoints": [
 			{
-				"url": "http://127.0.0.1:15672",
-				"user": "guest",
-				"password": "{{myPassword}}"
+				"host": "8.8.8.8",
+				"alias": "Google Public DNS",
+				"packets": 4,
+				"timeout": 2
+			},
+			{
+				"host": "1.1.1.1",
+				"alias": "Cloudflare DNS",
+				"packets": 4,
+				"timeout": 2
 			}
 		]
 	}

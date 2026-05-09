@@ -2,11 +2,11 @@
   "types": {
     "dynatrace.datasource.python:myipcrossextension-endpoint": {
       "type": "object",
-      "displayName": "Myipcrossextension Endpoint",
-      "summaryPattern": "Myipcrossextension {url}",
+      "displayName": "Ping Target Endpoint",
+      "summaryPattern": "Ping target {host} ({alias})",
       "properties": {
-        "url": {
-          "displayName": "URL",
+        "host": {
+          "displayName": "Host / IP Address",
           "type": "text",
           "nullable": false,
           "default": "",
@@ -14,35 +14,49 @@
             {
               "type": "LENGTH",
               "minLength": 1,
-              "maxLength": 500
+              "maxLength": 255
             }
           ],
           "maxItems": 1
         },
-        "user": {
-          "displayName": "User name",
+        "alias": {
+          "displayName": "Alias / Friendly Name",
           "type": "text",
-          "nullable": false,
+          "nullable": true,
           "default": "",
           "constraints": [
             {
               "type": "LENGTH",
-              "minLength": 1,
-              "maxLength": 500
+              "minLength": 0,
+              "maxLength": 100
             }
           ],
           "maxItems": 1
         },
-        "password": {
-          "displayName": "Password",
-          "type": "secret",
-          "nullable": false,
-          "default": "",
+        "packets": {
+          "displayName": "Packets Count",
+          "type": "integer",
+          "nullable": true,
+          "default": 4,
           "constraints": [
             {
-              "type": "LENGTH",
-              "minLength": 1,
-              "maxLength": 500
+              "type": "RANGE",
+              "minimum": 1,
+              "maximum": 20
+            }
+          ],
+          "maxItems": 1
+        },
+        "timeout": {
+          "displayName": "Timeout (seconds)",
+          "type": "integer",
+          "nullable": true,
+          "default": 2,
+          "constraints": [
+            {
+              "type": "RANGE",
+              "minimum": 1,
+              "maximum": 10
             }
           ],
           "maxItems": 1

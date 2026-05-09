@@ -15,3 +15,47 @@ python:
       path: activationSchema.json
     local:
       path: activationSchema.json
+
+metrics:
+  - key: custom.ping.packets.sent
+    metadata:
+      displayName: "Ping Packets Sent"
+      description: "Number of ping packets sent"
+      unit: Count
+  - key: custom.ping.packets.received
+    metadata:
+      displayName: "Ping Packets Received"
+      description: "Number of successful ping replies received"
+      unit: Count
+  - key: custom.ping.packets.lost
+    metadata:
+      displayName: "Ping Packets Lost"
+      description: "Number of ping packets lost"
+      unit: Count
+  - key: custom.ping.loss.percent
+    metadata:
+      displayName: "Ping Packet Loss Percent"
+      description: "Percentage of ping packets lost"
+      unit: Percent
+  - key: custom.ping.status
+    metadata:
+      displayName: "Ping Status"
+      description: "Ping status (1 = OK, 0 = Failure)"
+      unit: Count
+  - key: custom.ping.latency.min
+    metadata:
+      displayName: "Ping Latency (Min)"
+      description: "Minimum latency of successful pings"
+      unit: MilliSecond
+  - key: custom.ping.latency.max
+    metadata:
+      displayName: "Ping Latency (Max)"
+      description: "Maximum latency of successful pings"
+      unit: MilliSecond
+  - key: custom.ping.latency.avg
+    metadata:
+      displayName: "Ping Latency (Avg)"
+      description: "Average latency of successful pings"
+      unit: MilliSecond
+
+
