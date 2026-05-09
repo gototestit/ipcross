@@ -137,11 +137,11 @@ class ExtensionImpl(Extension):
                 dimensions["alias"] = alias
 
             # Report standard metrics
-            self.report_metric("custom.ping.packets.sent", res["sent"], dimensions=dimensions)
-            self.report_metric("custom.ping.packets.received", res["received"], dimensions=dimensions)
-            self.report_metric("custom.ping.packets.lost", res["lost"], dimensions=dimensions)
-            self.report_metric("custom.ping.loss.percent", res["loss_percent"], dimensions=dimensions)
-            self.report_metric("custom.ping.status", res["status"], dimensions=dimensions)
+            self.report_metric("custom.extrg.ping.packets.sent", res["sent"], dimensions=dimensions)
+            self.report_metric("custom.extrg.ping.packets.received", res["received"], dimensions=dimensions)
+            self.report_metric("custom.extrg.ping.packets.lost", res["lost"], dimensions=dimensions)
+            self.report_metric("custom.extrg.ping.loss.percent", res["loss_percent"], dimensions=dimensions)
+            self.report_metric("custom.extrg.ping.status", res["status"], dimensions=dimensions)
 
             # Report latency metrics only if we received at least one response
             if res["received"] > 0:
@@ -149,9 +149,9 @@ class ExtensionImpl(Extension):
                     f"Ping successful for {host}: Sent={res['sent']}, Received={res['received']}, "
                     f"Latency (Min/Avg/Max)={res['min']:.1f}/{res['avg']:.1f}/{res['max']:.1f} ms"
                 )
-                self.report_metric("custom.ping.latency.min", res["min"], dimensions=dimensions)
-                self.report_metric("custom.ping.latency.max", res["max"], dimensions=dimensions)
-                self.report_metric("custom.ping.latency.avg", res["avg"], dimensions=dimensions)
+                self.report_metric("custom.extrg.ping.latency.min", res["min"], dimensions=dimensions)
+                self.report_metric("custom.extrg.ping.latency.max", res["max"], dimensions=dimensions)
+                self.report_metric("custom.extrg.ping.latency.avg", res["avg"], dimensions=dimensions)
             else:
                 self.logger.warning(f"Ping failed for {host}: {res['error']}")
 
