@@ -23,7 +23,6 @@
           "displayName": "Alias / Friendly Name",
           "type": "text",
           "nullable": true,
-          "default": "",
           "constraints": [
             {
               "type": "LENGTH",
@@ -37,7 +36,6 @@
           "displayName": "Packets Count",
           "type": "integer",
           "nullable": true,
-          "default": 4,
           "constraints": [
             {
               "type": "RANGE",
@@ -51,7 +49,6 @@
           "displayName": "Timeout (seconds)",
           "type": "integer",
           "nullable": true,
-          "default": 2,
           "constraints": [
             {
               "type": "RANGE",

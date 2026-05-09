@@ -4,28 +4,28 @@
             "fileMatch": [
                 "**/openpipeline/*metrics.pipeline.json"
             ],
-            "url": "file:///c%3A/Users/Adofsis/AppData/Roaming/Antigravity/User/globalStorage/dynatraceplatformextensions.dynatrace-extensions/openpipeline/metrics.pipeline.schema.json"
+            "url": "file:///c%3A/Users/Adofsis/AppData/Roaming/Code/User/globalStorage/dynatraceplatformextensions.dynatrace-extensions/openpipeline/metrics.pipeline.schema.json"
         },
         {
             "fileMatch": [
                 "**/openpipeline/*metrics.source.json"
             ],
-            "url": "file:///c%3A/Users/Adofsis/AppData/Roaming/Antigravity/User/globalStorage/dynatraceplatformextensions.dynatrace-extensions/openpipeline/metrics.source.schema.json"
+            "url": "file:///c%3A/Users/Adofsis/AppData/Roaming/Code/User/globalStorage/dynatraceplatformextensions.dynatrace-extensions/openpipeline/metrics.source.schema.json"
         },
         {
             "fileMatch": [
                 "**/openpipeline/*logs.pipeline.json"
             ],
-            "url": "file:///c%3A/Users/Adofsis/AppData/Roaming/Antigravity/User/globalStorage/dynatraceplatformextensions.dynatrace-extensions/openpipeline/logs.pipeline.schema.json"
+            "url": "file:///c%3A/Users/Adofsis/AppData/Roaming/Code/User/globalStorage/dynatraceplatformextensions.dynatrace-extensions/openpipeline/logs.pipeline.schema.json"
         },
         {
             "fileMatch": [
                 "**/openpipeline/*logs.source.json"
             ],
-            "url": "file:///c%3A/Users/Adofsis/AppData/Roaming/Antigravity/User/globalStorage/dynatraceplatformextensions.dynatrace-extensions/openpipeline/logs.source.schema.json"
+            "url": "file:///c%3A/Users/Adofsis/AppData/Roaming/Code/User/globalStorage/dynatraceplatformextensions.dynatrace-extensions/openpipeline/logs.source.schema.json"
         }
     ],
     "yaml.schemas": {
-        "file:///c%3A/Users/Adofsis/AppData/Roaming/Antigravity/User/globalStorage/dynatraceplatformextensions.dynatrace-extensions/1.337.0/extension.schema.json": "extension.yaml"
+        "file:///c%3A/Users/Adofsis/AppData/Roaming/Code/User/globalStorage/dynatraceplatformextensions.dynatrace-extensions/1.337.0/extension.schema.json": "extension.yaml"
     }
 }
