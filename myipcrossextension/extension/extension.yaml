@@ -1,5 +1,5 @@
 name: custom:myipcrossextension
-version: 1.0.0
+version: 1.0.1
 minDynatraceVersion: 1.334.0
 author:
   name: "Dynatrace"
