@@ -2,11 +2,11 @@
   "types": {
     "dynatrace.datasource.python:myipcrossextension-endpoint": {
       "type": "object",
-      "displayName": "Ping Target Endpoint",
-      "summaryPattern": "Ping target {host} ({alias})",
+      "displayName": "Network Target Endpoint",
+      "summaryPattern": "Target {host} via {test_methods} ({alias})",
       "properties": {
         "host": {
-          "displayName": "Host / IP Address",
+          "displayName": "Host / IP Address / Domain",
           "type": "text",
           "nullable": false,
           "default": "",
@@ -32,8 +32,43 @@
           ],
           "maxItems": 1
         },
+        "test_methods": {
+          "displayName": "Test Connection Methods",
+          "type": "list",
+          "items": {
+            "type": "text",
+            "enum": [
+              "ICMP",
+              "TCP",
+              "DNS",
+              "HTTP"
+            ],
+            "enumNames": [
+              "Ping (ICMP)",
+              "TCP Socket Connect",
+              "DNS Name Resolution",
+              "HTTP Service Verification"
+            ]
+          },
+          "nullable": false,
+          "minItems": 1,
+          "maxItems": 4
+        },
+        "port": {
+          "displayName": "Port (required for TCP/HTTP)",
+          "type": "integer",
+          "nullable": true,
+          "constraints": [
+            {
+              "type": "RANGE",
+              "minimum": 1,
+              "maximum": 65535
+            }
+          ],
+          "maxItems": 1
+        },
         "packets": {
-          "displayName": "Packets Count",
+          "displayName": "Packets/Tries Count",
           "type": "integer",
           "nullable": true,
           "constraints": [

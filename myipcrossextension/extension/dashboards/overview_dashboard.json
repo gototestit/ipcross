@@ -1,0 +1,348 @@
+{
+  "metadata": {
+    "configurationVersions": [
+      7
+    ],
+    "clusterVersion": "1.301.49.20241002-091839"
+  },
+  "id": "e4a2c892-91f1-4b72-b88d-e6b7c2d3a4ef",
+  "dashboardMetadata": {
+    "name": "IPCross Network Overview",
+    "shared": true,
+    "owner": "dynatrace.extension@ipcross.com",
+    "tags": [
+      "Extension",
+      "Network",
+      "IPCross"
+    ],
+    "hasConsistentColors": true
+  },
+  "tiles": [
+    {
+      "name": "Header",
+      "tileType": "MARKDOWN",
+      "configured": true,
+      "bounds": {
+        "top": 0,
+        "left": 0,
+        "width": 1406,
+        "height": 76
+      },
+      "tileFilter": {},
+      "isAutoRefreshDisabled": false,
+      "markdown": "# 🌐 IPCross Network Performance Overview\n***"
+    },
+    {
+      "name": "Subtitle and Navigation Links",
+      "tileType": "MARKDOWN",
+      "configured": true,
+      "bounds": {
+        "top": 76,
+        "left": 0,
+        "width": 1406,
+        "height": 76
+      },
+      "tileFilter": {},
+      "isAutoRefreshDisabled": false,
+      "markdown": "## ⚙️ [Configure Extension](/ui/hub/ext/custom:myipcrossextension) &nbsp;&nbsp;|&nbsp;&nbsp; 🔗 Entity List: [Ping Targets](ui/entity/list/ipcross:target)"
+    },
+    {
+      "name": "Total Monitored Targets",
+      "tileType": "DATA_EXPLORER",
+      "configured": true,
+      "bounds": {
+        "top": 152,
+        "left": 0,
+        "width": 456,
+        "height": 152
+      },
+      "tileFilter": {},
+      "isAutoRefreshDisabled": false,
+      "customName": "Monitored Targets Count",
+      "queries": [
+        {
+          "id": "A",
+          "spaceAggregation": "AUTO",
+          "timeAggregation": "DEFAULT",
+          "metricSelector": "custom.extrg.ping.status:splitBy(\"dt.entity.ipcross:target\"):auto:splitBy():count",
+          "rate": "NONE",
+          "enabled": true
+        }
+      ],
+      "visualConfig": {
+        "type": "SINGLE_VALUE",
+        "global": {},
+        "rules": [
+          {
+            "matcher": "A:",
+            "properties": {
+              "color": "GREEN",
+              "seriesType": "COLUMN"
+            },
+            "seriesOverrides": []
+          }
+        ],
+        "singleValueSettings": {
+          "showSparkLine": false
+        }
+      }
+    },
+    {
+      "name": "Global Average Packet Loss",
+      "tileType": "DATA_EXPLORER",
+      "configured": true,
+      "bounds": {
+        "top": 152,
+        "left": 456,
+        "width": 475,
+        "height": 152
+      },
+      "tileFilter": {},
+      "isAutoRefreshDisabled": false,
+      "customName": "Global Avg Packet Loss",
+      "queries": [
+        {
+          "id": "A",
+          "spaceAggregation": "AVG",
+          "timeAggregation": "DEFAULT",
+          "metricSelector": "custom.extrg.ping.loss.percent:avg",
+          "rate": "NONE",
+          "enabled": true
+        }
+      ],
+      "visualConfig": {
+        "type": "SINGLE_VALUE",
+        "global": {},
+        "rules": [
+          {
+            "matcher": "A:",
+            "properties": {
+              "color": "RED"
+            }
+          }
+        ],
+        "singleValueSettings": {
+          "showSparkLine": true
+        }
+      }
+    },
+    {
+      "name": "Global Average Latency",
+      "tileType": "DATA_EXPLORER",
+      "configured": true,
+      "bounds": {
+        "top": 152,
+        "left": 931,
+        "width": 475,
+        "height": 152
+      },
+      "tileFilter": {},
+      "isAutoRefreshDisabled": false,
+      "customName": "Global Avg Latency",
+      "queries": [
+        {
+          "id": "A",
+          "spaceAggregation": "AVG",
+          "timeAggregation": "DEFAULT",
+          "metricSelector": "custom.extrg.ping.latency.avg:avg",
+          "rate": "NONE",
+          "enabled": true
+        }
+      ],
+      "visualConfig": {
+        "type": "SINGLE_VALUE",
+        "global": {},
+        "rules": [
+          {
+            "matcher": "A:",
+            "properties": {
+              "color": "ROYALBLUE"
+            }
+          }
+        ],
+        "singleValueSettings": {
+          "showSparkLine": true
+        }
+      }
+    },
+    {
+      "name": "Target Status and Performance Table",
+      "tileType": "DATA_EXPLORER",
+      "configured": true,
+      "bounds": {
+        "top": 304,
+        "left": 0,
+        "width": 703,
+        "height": 380
+      },
+      "tileFilter": {},
+      "isAutoRefreshDisabled": false,
+      "customName": "Targets Live Performance Status",
+      "queries": [
+        {
+          "id": "A",
+          "spaceAggregation": "AUTO",
+          "timeAggregation": "DEFAULT",
+          "splitBy": [
+            "dt.entity.ipcross:target"
+          ],
+          "metricSelector": "custom.extrg.ping.status:splitBy(\"dt.entity.ipcross:target\"):last",
+          "rate": "NONE",
+          "enabled": true
+        },
+        {
+          "id": "B",
+          "spaceAggregation": "AUTO",
+          "timeAggregation": "DEFAULT",
+          "splitBy": [
+            "dt.entity.ipcross:target"
+          ],
+          "metricSelector": "custom.extrg.ping.loss.percent:splitBy(\"dt.entity.ipcross:target\"):last",
+          "rate": "NONE",
+          "enabled": true
+        },
+        {
+          "id": "C",
+          "spaceAggregation": "AUTO",
+          "timeAggregation": "DEFAULT",
+          "splitBy": [
+            "dt.entity.ipcross:target"
+          ],
+          "metricSelector": "custom.extrg.ping.latency.avg:splitBy(\"dt.entity.ipcross:target\"):last",
+          "rate": "NONE",
+          "enabled": true
+        }
+      ],
+      "visualConfig": {
+        "type": "TABLE",
+        "global": {
+          "hideLegend": false
+        },
+        "rules": [
+          {
+            "matcher": "A:",
+            "properties": {
+              "color": "DEFAULT"
+            }
+          },
+          {
+            "matcher": "B:",
+            "properties": {
+              "color": "DEFAULT"
+            }
+          },
+          {
+            "matcher": "C:",
+            "properties": {
+              "color": "DEFAULT"
+            }
+          }
+        ],
+        "tableSettings": {
+          "isThresholdBackgroundAppliedToCell": false,
+          "hiddenColumns": [
+            "A:dt.entity.ipcross:target.name"
+          ]
+        },
+        "thresholds": [
+          {
+            "axisTarget": "LEFT",
+            "columnId": "Ping Status",
+            "rules": [
+              {
+                "color": "#dc172a",
+                "value": 0
+              },
+              {
+                "color": "#7dc540",
+                "value": 1
+              }
+            ],
+            "queryId": "A",
+            "visible": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "Average Latency Trends per Target",
+      "tileType": "DATA_EXPLORER",
+      "configured": true,
+      "bounds": {
+        "top": 304,
+        "left": 703,
+        "width": 703,
+        "height": 190
+      },
+      "tileFilter": {},
+      "isAutoRefreshDisabled": false,
+      "customName": "Ping Latency (Avg) per Target",
+      "queries": [
+        {
+          "id": "A",
+          "metric": "custom.extrg.ping.latency.avg",
+          "spaceAggregation": "AVG",
+          "timeAggregation": "DEFAULT",
+          "splitBy": [
+            "dt.entity.ipcross:target"
+          ],
+          "enabled": true
+        }
+      ],
+      "visualConfig": {
+        "type": "GRAPH_CHART",
+        "global": {
+          "hideLegend": false
+        },
+        "rules": [
+          {
+            "matcher": "A:",
+            "properties": {
+              "seriesType": "LINE"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Packet Loss Trends per Target",
+      "tileType": "DATA_EXPLORER",
+      "configured": true,
+      "bounds": {
+        "top": 494,
+        "left": 703,
+        "width": 703,
+        "height": 190
+      },
+      "tileFilter": {},
+      "isAutoRefreshDisabled": false,
+      "customName": "Packet Loss (%) per Target",
+      "queries": [
+        {
+          "id": "A",
+          "metric": "custom.extrg.ping.loss.percent",
+          "spaceAggregation": "AVG",
+          "timeAggregation": "DEFAULT",
+          "splitBy": [
+            "dt.entity.ipcross:target"
+          ],
+          "enabled": true
+        }
+      ],
+      "visualConfig": {
+        "type": "GRAPH_CHART",
+        "global": {
+          "hideLegend": false
+        },
+        "rules": [
+          {
+            "matcher": "A:",
+            "properties": {
+              "seriesType": "AREA"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

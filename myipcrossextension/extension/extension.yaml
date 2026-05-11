@@ -1,5 +1,5 @@
 name: custom:myipcrossextension
-version: 1.0.1
+version: 1.0.13
 minDynatraceVersion: 1.334.0
 author:
   name: "Dynatrace"
@@ -22,40 +22,346 @@ metrics:
       displayName: "Ping Packets Sent"
       description: "Number of ping packets sent"
       unit: Count
+      sourceEntityType: ipcross:target
   - key: custom.extrg.ping.packets.received
     metadata:
       displayName: "Ping Packets Received"
       description: "Number of successful ping replies received"
       unit: Count
+      sourceEntityType: ipcross:target
   - key: custom.extrg.ping.packets.lost
     metadata:
       displayName: "Ping Packets Lost"
       description: "Number of ping packets lost"
       unit: Count
+      sourceEntityType: ipcross:target
   - key: custom.extrg.ping.loss.percent
     metadata:
       displayName: "Ping Packet Loss Percent"
       description: "Percentage of ping packets lost"
       unit: Percent
+      sourceEntityType: ipcross:target
   - key: custom.extrg.ping.status
     metadata:
       displayName: "Ping Status"
       description: "Ping status (1 = OK, 0 = Failure)"
       unit: Count
+      sourceEntityType: ipcross:target
   - key: custom.extrg.ping.latency.min
     metadata:
       displayName: "Ping Latency (Min)"
       description: "Minimum latency of successful pings"
       unit: MilliSecond
+      sourceEntityType: ipcross:target
   - key: custom.extrg.ping.latency.max
     metadata:
       displayName: "Ping Latency (Max)"
       description: "Maximum latency of successful pings"
       unit: MilliSecond
+      sourceEntityType: ipcross:target
   - key: custom.extrg.ping.latency.avg
     metadata:
       displayName: "Ping Latency (Avg)"
       description: "Average latency of successful pings"
       unit: MilliSecond
+      sourceEntityType: ipcross:target
 
+topology:
+  types:
+    - name: ipcross:target
+      displayName: Ping Target
+      rules:
+        - idPattern: ipcross_target_{destination}_{method}
+          instanceNamePattern: "{alias} ({destination}) [{method}]"
+          iconPattern: server
+          requiredDimensions:
+            - key: alias
+              valuePattern: $exists()
+          sources:
+            - sourceType: Metrics
+              condition: $prefix(custom.extrg.ping.)
+          attributes:
+            - key: destination
+              displayName: Destination IP/Host
+              pattern: "{destination}"
+            - key: alias
+              displayName: Alias
+              pattern: "{alias}"
+            - key: origin
+              displayName: Origin IP (Source)
+              pattern: "{origin}"
+            - key: method
+              displayName: Connection Method
+              pattern: "{method}"
+        - idPattern: ipcross_target_{destination}_{method}
+          instanceNamePattern: "{destination} [{method}]"
+          iconPattern: server
+          sources:
+            - sourceType: Metrics
+              condition: $prefix(custom.extrg.ping.)
+          attributes:
+            - key: destination
+              displayName: Destination IP/Host
+              pattern: "{destination}"
+            - key: origin
+              displayName: Origin IP (Source)
+              pattern: "{origin}"
+            - key: method
+              displayName: Connection Method
+              pattern: "{method}"
+  relationships:
+    - fromType: ipcross:target
+      toType: host
+      typeOfRelation: RUNS_ON
+      sources:
+        - sourceType: Entities
+          mappingRules:
+            - sourceProperty: origin
+              sourceTransformation: To lower case
+              destinationProperty: ipAddress
+              destinationTransformation: To lower case
+    - fromType: ipcross:target
+      toType: host
+      typeOfRelation: CALLS
+      sources:
+        - sourceType: Entities
+          mappingRules:
+            - sourceProperty: destination
+              sourceTransformation: To lower case
+              destinationProperty: ipAddress
+              destinationTransformation: To lower case
 
+screens:
+  - entityType: ipcross:target
+    target: BOTH
+    propertiesCard:
+      target: BOTH
+      dqlQuery:
+        query: |-
+          fetch `dt.entity.ipcross:target`
+            | filter matchesValue(id, $(entityId))
+            | fields {
+              id,
+              entity.name,
+              destination,
+              alias,
+              origin,
+              method
+            }
+      displayOnlyConfigured: true
+      properties:
+        - type: ATTRIBUTE
+          attribute:
+            key: destination
+            displayName: Destination
+        - type: ATTRIBUTE
+          attribute:
+            key: alias
+            displayName: Alias
+        - type: ATTRIBUTE
+          attribute:
+            key: origin
+            displayName: Origin IP (Source)
+        - type: ATTRIBUTE
+          attribute:
+            key: method
+            displayName: Connection Method
+        - type: RELATION
+          relation:
+            entitySelectorTemplate: type(HOST), toRelationships.runsOn($(entityConditions))
+            displayName: Source Host (Origin)
+        - type: RELATION
+          relation:
+            entitySelectorTemplate: type(HOST), toRelationships.calls($(entityConditions))
+            displayName: Destination Host (Target)
+
+    listSettings:
+      staticContent:
+        showGlobalFilter: true
+        header:
+          title: Ping Targets
+      layout:
+        autoGenerate: false
+        cards:
+          - type: ENTITIES_LIST
+            key: ipcross-entities-list-self
+
+    entitiesListCards:
+      - key: ipcross-entities-list-self
+        pageSize: 10
+        entitiesLimit: 500
+        displayCharts: true
+        enableDetailsExpandability: true
+        numberOfVisibleCharts: 3
+        displayIcons: true
+        charts:
+          - displayName: Ping Status
+            visualizationType: GRAPH_CHART
+            graphChartConfig:
+              metrics:
+                - metricSelector: custom.extrg.ping.status:splitBy()
+                  visualization:
+                    themeColor: GREEN
+                    seriesType: LINE
+          - displayName: Packet Loss
+            visualizationType: GRAPH_CHART
+            graphChartConfig:
+              metrics:
+                - metricSelector: custom.extrg.ping.loss.percent:splitBy()
+                  visualization:
+                    themeColor: RED
+                    seriesType: LINE
+          - displayName: Average Latency
+            visualizationType: GRAPH_CHART
+            graphChartConfig:
+              metrics:
+                - metricSelector: custom.extrg.ping.latency.avg:splitBy()
+                  visualization:
+                    themeColor: BLUE
+                    seriesType: LINE
+
+    detailsSettings:
+      target: BOTH
+      staticContent:
+        showProblems: true
+        showProperties: true
+        showTags: true
+        showGlobalFilter: false
+        showAddTag: true
+        breadcrumbs:
+          - type: NOOP
+            displayName: IPCross
+          - type: ENTITY_LIST_REF
+            displayName: Ping Targets
+            entityType: ipcross:target
+      layout:
+        autoGenerate: false
+        cards:
+          - type: CHART_GROUP
+            key: ipcross-target-summary
+          - type: CHART_GROUP
+            key: ipcross-target-latency
+          - type: CHART_GROUP
+            key: ipcross-target-packets
+
+    chartsCards:
+      - key: ipcross-target-summary
+        target: BOTH
+        mode: NORMAL
+        displayName: Summary
+        hideEmptyCharts: true
+        numberOfVisibleCharts: 2
+        charts:
+          - displayName: Current Ping Status
+            visualizationType: SINGLE_VALUE
+            singleValueConfig:
+              showSparkline: false
+              metric:
+                metricSelector: custom.extrg.ping.status:splitBy():last
+                dqlQuery: |-
+                  timeseries
+                    status=max(custom.extrg.ping.status),
+                    filter: {`dt.entity.ipcross:target` == $(entityId)}
+          - displayName: Packet Loss Percent
+            visualizationType: SINGLE_VALUE
+            singleValueConfig:
+              showSparkline: false
+              metric:
+                metricSelector: custom.extrg.ping.loss.percent:splitBy():last
+                dqlQuery: |-
+                  timeseries
+                    loss=avg(custom.extrg.ping.loss.percent),
+                    filter: {`dt.entity.ipcross:target` == $(entityId)}
+
+      - key: ipcross-target-latency
+        mode: NORMAL
+        target: BOTH
+        displayName: Latency Analysis
+        hideEmptyCharts: true
+        numberOfVisibleCharts: 1
+        charts:
+          - displayName: Ping Latency (Min / Avg / Max)
+            visualizationType: GRAPH_CHART
+            graphChartConfig:
+              stacked: false
+              metrics:
+                - metricSelector: custom.extrg.ping.latency.min
+                  visualization:
+                    seriesType: LINE
+                    themeColor: GREEN
+                    displayName: Min Latency
+                  dqlQuery: |-
+                    timeseries
+                      min_lat=avg(custom.extrg.ping.latency.min),
+                      filter: {`dt.entity.ipcross:target` == $(entityId)}
+                - metricSelector: custom.extrg.ping.latency.avg
+                  visualization:
+                    seriesType: LINE
+                    themeColor: BLUE
+                    displayName: Avg Latency
+                  dqlQuery: |-
+                    timeseries
+                      avg_lat=avg(custom.extrg.ping.latency.avg),
+                      filter: {`dt.entity.ipcross:target` == $(entityId)}
+                - metricSelector: custom.extrg.ping.latency.max
+                  visualization:
+                    seriesType: LINE
+                    themeColor: RED
+                    displayName: Max Latency
+                  dqlQuery: |-
+                    timeseries
+                      max_lat=avg(custom.extrg.ping.latency.max),
+                      filter: {`dt.entity.ipcross:target` == $(entityId)}
+
+      - key: ipcross-target-packets
+        mode: NORMAL
+        target: BOTH
+        displayName: Packet Transmission
+        hideEmptyCharts: true
+        numberOfVisibleCharts: 2
+        charts:
+          - displayName: Packets (Sent vs Received vs Lost)
+            visualizationType: GRAPH_CHART
+            graphChartConfig:
+              stacked: false
+              metrics:
+                - metricSelector: custom.extrg.ping.packets.sent
+                  visualization:
+                    seriesType: COLUMN
+                    themeColor: BLUE
+                    displayName: Sent
+                  dqlQuery: |-
+                    timeseries
+                      sent=sum(custom.extrg.ping.packets.sent),
+                      filter: {`dt.entity.ipcross:target` == $(entityId)}
+                - metricSelector: custom.extrg.ping.packets.received
+                  visualization:
+                    seriesType: COLUMN
+                    themeColor: GREEN
+                    displayName: Received
+                  dqlQuery: |-
+                    timeseries
+                      received=sum(custom.extrg.ping.packets.received),
+                      filter: {`dt.entity.ipcross:target` == $(entityId)}
+                - metricSelector: custom.extrg.ping.packets.lost
+                  visualization:
+                    seriesType: COLUMN
+                    themeColor: RED
+                    displayName: Lost
+                  dqlQuery: |-
+                    timeseries
+                      lost=sum(custom.extrg.ping.packets.lost),
+                      filter: {`dt.entity.ipcross:target` == $(entityId)}
+          - displayName: Packet Loss Trend
+            visualizationType: GRAPH_CHART
+            graphChartConfig:
+              metrics:
+                - metricSelector: custom.extrg.ping.loss.percent
+                  visualization:
+                    seriesType: AREA
+                    themeColor: ORANGE
+                    displayName: Packet Loss %
+                  dqlQuery: |-
+                    timeseries
+                      loss=avg(custom.extrg.ping.loss.percent),
+                      filter: {`dt.entity.ipcross:target` == $(entityId)}
