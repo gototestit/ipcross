@@ -277,6 +277,38 @@ class ExtensionImpl(Extension):
                 "error": error_msg
             }
 
+    def report_probe_metrics(self, res, method, origin_ip, host, alias):
+        """
+        Helper method to log and report metrics for a specific probe execution
+        """
+        # Build dimensions for metric reporting (include 'method' so they don't collide!)
+        dimensions = {
+            "origin": origin_ip,
+            "destination": host,
+            "method": method
+        }
+        if alias:
+            dimensions["alias"] = alias
+
+        # Report standard metrics
+        self.report_metric("custom.extrg.ping.packets.sent", res["sent"], dimensions=dimensions)
+        self.report_metric("custom.extrg.ping.packets.received", res["received"], dimensions=dimensions)
+        self.report_metric("custom.extrg.ping.packets.lost", res["lost"], dimensions=dimensions)
+        self.report_metric("custom.extrg.ping.loss.percent", res["loss_percent"], dimensions=dimensions)
+        self.report_metric("custom.extrg.ping.status", res["status"], dimensions=dimensions)
+
+        # Report latency metrics only if we received at least one response
+        if res["received"] > 0:
+            self.logger.info(
+                f"{method.upper()} successful for {host}: Sent={res['sent']}, Received={res['received']}, "
+                f"Latency (Min/Avg/Max)={res['min']:.1f}/{res['avg']:.1f}/{res['max']:.1f} ms"
+            )
+            self.report_metric("custom.extrg.ping.latency.min", res["min"], dimensions=dimensions)
+            self.report_metric("custom.extrg.ping.latency.max", res["max"], dimensions=dimensions)
+            self.report_metric("custom.extrg.ping.latency.avg", res["avg"], dimensions=dimensions)
+        else:
+            self.logger.warning(f"{method.upper()} failed for {host}: {res['error']}")
+
     def query(self):
         """
         The query method is automatically scheduled to run every minute
@@ -296,60 +328,45 @@ class ExtensionImpl(Extension):
                 continue
 
             alias = endpoint.get("alias") or ""
-            methods = endpoint.get("test_methods") or ["ICMP"]
+            enable_icmp = endpoint.get("enable_icmp", True)
+            enable_tcp = endpoint.get("enable_tcp", False)
+            enable_dns = endpoint.get("enable_dns", False)
+            enable_http = endpoint.get("enable_http", False)
+
             port = endpoint.get("port") or 80
             count = endpoint.get("packets") or 4
             timeout_sec = endpoint.get("timeout") or 2
 
             origin_ip = get_origin_ip(host) or "unknown"
-            
-            for method_raw in methods:
-                method = method_raw.lower()
-                
-                # Execute probe based on method
+
+            # Execute probes for each enabled connection check method
+            if enable_icmp:
                 self.logger.info(
-                    f"Testing target '{host}' via {method.upper()} (origin: '{origin_ip}', alias: '{alias or 'None'}') with {count} tries..."
+                    f"Testing target '{host}' via ICMP (origin: '{origin_ip}', alias: '{alias or 'None'}') with {count} tries..."
                 )
-                
-                if method == "icmp":
-                    res = self.run_ping(host, count=count, timeout_sec=timeout_sec)
-                elif method == "tcp":
-                    res = self.run_tcp(host, port=port, count=count, timeout_sec=timeout_sec)
-                elif method == "dns":
-                    res = self.run_dns(host, count=count, timeout_sec=timeout_sec)
-                elif method == "http":
-                    res = self.run_http(host, port=port, count=count, timeout_sec=timeout_sec)
-                else:
-                    self.logger.warning(f"Unsupported connection method '{method}', skipping method.")
-                    continue
+                res = self.run_ping(host, count=count, timeout_sec=timeout_sec)
+                self.report_probe_metrics(res, "icmp", origin_ip, host, alias)
 
-                # Build dimensions for metric reporting (include 'method' so they don't collide!)
-                dimensions = {
-                    "origin": origin_ip,
-                    "destination": host,
-                    "method": method
-                }
-                if alias:
-                    dimensions["alias"] = alias
+            if enable_tcp:
+                self.logger.info(
+                    f"Testing target '{host}' via TCP port {port} (origin: '{origin_ip}', alias: '{alias or 'None'}') with {count} tries..."
+                )
+                res = self.run_tcp(host, port=port, count=count, timeout_sec=timeout_sec)
+                self.report_probe_metrics(res, "tcp", origin_ip, host, alias)
 
-                # Report standard metrics
-                self.report_metric("custom.extrg.ping.packets.sent", res["sent"], dimensions=dimensions)
-                self.report_metric("custom.extrg.ping.packets.received", res["received"], dimensions=dimensions)
-                self.report_metric("custom.extrg.ping.packets.lost", res["lost"], dimensions=dimensions)
-                self.report_metric("custom.extrg.ping.loss.percent", res["loss_percent"], dimensions=dimensions)
-                self.report_metric("custom.extrg.ping.status", res["status"], dimensions=dimensions)
+            if enable_dns:
+                self.logger.info(
+                    f"Testing target '{host}' via DNS (origin: '{origin_ip}', alias: '{alias or 'None'}') with {count} tries..."
+                )
+                res = self.run_dns(host, count=count, timeout_sec=timeout_sec)
+                self.report_probe_metrics(res, "dns", origin_ip, host, alias)
 
-                # Report latency metrics only if we received at least one response
-                if res["received"] > 0:
-                    self.logger.info(
-                        f"{method.upper()} successful for {host}: Sent={res['sent']}, Received={res['received']}, "
-                        f"Latency (Min/Avg/Max)={res['min']:.1f}/{res['avg']:.1f}/{res['max']:.1f} ms"
-                    )
-                    self.report_metric("custom.extrg.ping.latency.min", res["min"], dimensions=dimensions)
-                    self.report_metric("custom.extrg.ping.latency.max", res["max"], dimensions=dimensions)
-                    self.report_metric("custom.extrg.ping.latency.avg", res["avg"], dimensions=dimensions)
-                else:
-                    self.logger.warning(f"{method.upper()} failed for {host}: {res['error']}")
+            if enable_http:
+                self.logger.info(
+                    f"Testing target '{host}' via HTTP port {port} (origin: '{origin_ip}', alias: '{alias or 'None'}') with {count} tries..."
+                )
+                res = self.run_http(host, port=port, count=count, timeout_sec=timeout_sec)
+                self.report_probe_metrics(res, "http", origin_ip, host, alias)
 
         self.logger.info("Query method ended for custom:myipcrossextension.")
 

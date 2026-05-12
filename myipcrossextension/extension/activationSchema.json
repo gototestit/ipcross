@@ -3,7 +3,7 @@
     "dynatrace.datasource.python:myipcrossextension-endpoint": {
       "type": "object",
       "displayName": "Network Target Endpoint",
-      "summaryPattern": "Target {host} via {test_methods} ({alias})",
+      "summaryPattern": "Target {host} ({alias})",
       "properties": {
         "host": {
           "displayName": "Host / IP Address / Domain",
@@ -32,27 +32,33 @@
           ],
           "maxItems": 1
         },
-        "test_methods": {
-          "displayName": "Test Connection Methods",
-          "type": "list",
-          "items": {
-            "type": "text",
-            "enum": [
-              "ICMP",
-              "TCP",
-              "DNS",
-              "HTTP"
-            ],
-            "enumNames": [
-              "Ping (ICMP)",
-              "TCP Socket Connect",
-              "DNS Name Resolution",
-              "HTTP Service Verification"
-            ]
-          },
+        "enable_icmp": {
+          "displayName": "Enable Ping (ICMP)",
+          "type": "boolean",
           "nullable": false,
-          "minItems": 1,
-          "maxItems": 4
+          "default": true,
+          "maxItems": 1
+        },
+        "enable_tcp": {
+          "displayName": "Enable TCP Socket Connect",
+          "type": "boolean",
+          "nullable": false,
+          "default": false,
+          "maxItems": 1
+        },
+        "enable_dns": {
+          "displayName": "Enable DNS Name Resolution",
+          "type": "boolean",
+          "nullable": false,
+          "default": false,
+          "maxItems": 1
+        },
+        "enable_http": {
+          "displayName": "Enable HTTP Service Verification",
+          "type": "boolean",
+          "nullable": false,
+          "default": false,
+          "maxItems": 1
         },
         "port": {
           "displayName": "Port (required for TCP/HTTP)",
